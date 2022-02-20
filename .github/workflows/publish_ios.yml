@@ -1,0 +1,53 @@
+name: Publish (iOS)
+
+on:
+  push:
+    branches:
+      - "!*"
+    tags:
+      - "v*"
+
+jobs:
+  build_and_publish:
+    runs-on: macos-latest
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/ios/Gemfile
+
+    steps:
+      - name: Check out from git
+        uses: actions/checkout@v2
+      - name: Setup ruby & Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          flutter-version: 2.10.1
+      - name: Pods cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ios/Pods
+            build/ios/Pods.build
+            build/ios/pod_inputs.fingerprint
+          key: ios-pods-{{ hashFiles(ios/Podfile.lock) }}-v2
+          restore-keys: |
+            ios-pods-
+      - name: Build output cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            build/ios/Release-iphoneos
+            build/ios/XCBuildData
+          key: ios-publish-incremental-build-${{ github.sha }}
+          restore-keys: |
+            ios-publish-incremental-build-
+      - name: Build release for iOS
+        run: flutter build ios --no-codesign --release
+      - name: Publish to TestFlight with Fastlane
+        env:
+          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+        run: cd ios && bundle exec fastlane beta "build_name:${{ github.ref_name }}"
