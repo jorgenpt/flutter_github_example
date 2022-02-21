@@ -26,6 +26,12 @@ jobs:
         with:
           cache: true
           flutter-version: 2.10.1
+      -   name: Setup SSH key
+          env:
+              SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          run: |
+              ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+              ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
       - name: Pods cache
         uses: actions/cache@v2
         with:
@@ -50,4 +56,6 @@ jobs:
       - name: Publish to TestFlight with Fastlane
         env:
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: cd ios && bundle exec fastlane beta "build_name:${{ github.ref_name }}"

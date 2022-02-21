@@ -19,6 +19,14 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
 
   lane :beta do |options|
+    setup_ci
+
+    sync_code_signing(
+      type: "appstore",
+      app_identifier: 'no.tjer.HelloWorld',
+      readonly: true
+    )
+
     # We expose the key data using `APP_STORE_CONNECT_API_KEY_KEY` secret on GH
     app_store_connect_api_key(
       key_id: "YRQDJRKMR9",
@@ -41,7 +49,6 @@ platform :ios do
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
-      xcargs: "-allowProvisioningUpdates",
       output_directory: "../build/ios/archive"
     )
 
