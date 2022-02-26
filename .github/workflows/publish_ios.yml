@@ -51,9 +51,9 @@ jobs:
           key: ios-publish-incremental-build-${{ github.sha }}
           restore-keys: |
             ios-publish-incremental-build-
-      - name: Build release for iOS
-        run: flutter build ios --no-codesign --release
-      - name: Publish to TestFlight with Fastlane
+      - name: Download dependencies
+        run: flutter pub get
+      - name: Build & Publish to TestFlight with Fastlane
         env:
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
