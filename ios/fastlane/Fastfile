@@ -52,11 +52,6 @@ platform :ios do
       output_directory: "../build/ios/archive"
     )
 
-    changelog_from_git_commits(
-      tag_match_pattern: 'v*',
-      pretty: '- %s'
-    )
-
     upload_to_testflight(
       # This takes a long time, so don't waste GH runner minutes (but it means manually needing to
       # set the build live for external testers).
