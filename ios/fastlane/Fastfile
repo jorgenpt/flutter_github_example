@@ -32,7 +32,7 @@ platform :ios do
     is_example_repo = ENV['CI'] && ENV['GITHUB_REPOSITORY'] == 'jorgenpt/flutter_github_example'
 
     if !is_example_repo && APP_IDENTIFIER == 'no.tjer.HelloWorld' then
-      raise "You need to use the correct `APP_IDENTIFIER` in your Fastfile"
+      UI.user_error! "You need to update your Fastfile to use your own `APP_IDENTIFIER`"
     end
 
     # Download code signing certificates using `match` (and the `MATCH_PASSWORD` secret)
@@ -44,10 +44,10 @@ platform :ios do
 
     if !is_example_repo then
       if APPSTORECONNECT_ISSUER_ID == '69a6de83-feb7-47e3-e053-5b8c7c11a4d1' then
-        raise "You need to use the correct `APPSTORECONNECT_ISSUER_ID` in your Fastfile"
+        UI.user_error! "You need to update your Fastfile to use your own `APPSTORECONNECT_ISSUER_ID`"
       end
       if APPSTORECONNECT_KEY_ID == 'YRQDJRKMR9' then
-        raise "You need to use the correct `APPSTORECONNECT_KEY_ID` in your Fastfile"
+        UI.user_error! "You need to update your Fastfile to use your own `APPSTORECONNECT_KEY_ID`"
       end
     end
 
