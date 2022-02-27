@@ -27,9 +27,9 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
 
   lane :beta do |options|
-    setup_ci if env['CI']
+    setup_ci if ENV['CI']
 
-    is_example_repo = !env.key?('GITHUB_REPOSITORY') || env['GITHUB_REPOSITORY'] == 'jorgenpt/flutter_github_example'
+    is_example_repo = ENV['CI'] && ENV['GITHUB_REPOSITORY'] == 'jorgenpt/flutter_github_example'
 
     if !is_example_repo && APP_IDENTIFIER == 'no.tjer.HelloWorld' then
       raise "You need to use the correct `APP_IDENTIFIER` in your Fastfile"
