@@ -32,25 +32,6 @@ jobs:
           run: |
               ssh-agent -a $SSH_AUTH_SOCK > /dev/null
               ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
-      - name: Pods cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ios/Pods
-            build/ios/Pods.build
-            build/ios/pod_inputs.fingerprint
-          key: ios-pods-{{ hashFiles(ios/Podfile.lock) }}-v2
-          restore-keys: |
-            ios-pods-
-      - name: Build output cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            build/ios/Release-iphoneos
-            build/ios/XCBuildData
-          key: ios-publish-incremental-build-${{ github.sha }}
-          restore-keys: |
-            ios-publish-incremental-build-
       - name: Download dependencies
         run: flutter pub get
       - name: Build & Publish to TestFlight with Fastlane
