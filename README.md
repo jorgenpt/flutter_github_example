@@ -1,16 +1,5 @@
-# hello_world
+# Flutter GitHub Example
 
-Test for iOS deploy on GH
+This repository contains examples on how to use _GitHub Workflows_ with Flutter to build & publish builds for iOS.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+It is a reference for the blog post ["Flutter & GitHub Workflows: Deploying to TestFlight"](http://jorgen.tjer.no/post/2022/02/26/2022-02-26-flutter-github-workflows-and-testflight/).
