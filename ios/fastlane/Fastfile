@@ -21,6 +21,7 @@ platform :ios do
   lane :beta do |options|
     setup_ci
 
+    # Download code signing certificates using `match` (and the `MATCH_PASSWORD` secret)
     sync_code_signing(
       type: "appstore",
       app_identifier: 'no.tjer.HelloWorld',
@@ -48,6 +49,7 @@ platform :ios do
       *extra_config_args
     )
   
+    # Build & sign using Runner.xcworkspace
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
