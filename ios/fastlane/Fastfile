@@ -78,6 +78,7 @@ platform :ios do
       scheme: "Runner",
       output_directory: "../build/ios/archive",
       xcargs: "-IgnoreFileSystemDeviceInodeChanges=YES",
+      derived_data_path: "../build/ios/localDerivedData",
     )
 
     upload_to_testflight(
