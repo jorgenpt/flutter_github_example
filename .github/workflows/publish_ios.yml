@@ -83,6 +83,6 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: cd ios && bundle exec fastlane beta "build_name:${{ github.ref_name }}"
-      # Package up the derived data for the caching action, including permissions and fine grained timestamps.
+      # Package up the derived data for the caching action, including permissions and fine grained timestamps
       - name: Package DerivedData for cache
-        run: mkdir -p .deriveddata-cache && tar cfPp .deriveddata-cache/cache.tar --format posix localDerivedData
+        run: mkdir -p .deriveddata-cache && tar cfPp .deriveddata-cache/cache.tar --format posix build/ios/localDerivedData
