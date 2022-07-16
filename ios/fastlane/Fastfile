@@ -76,7 +76,8 @@ platform :ios do
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
-      output_directory: "../build/ios/archive"
+      output_directory: "../build/ios/archive",
+      xcargs: "-IgnoreFileSystemDeviceInodeChanges=YES",
     )
 
     upload_to_testflight(
