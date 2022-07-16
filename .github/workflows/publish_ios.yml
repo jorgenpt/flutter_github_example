@@ -22,6 +22,40 @@ jobs:
     steps:
       - name: Check out from git
         uses: actions/checkout@v2
+      # This retrieves the current date & week in a format that we can use for keying our 
+      # cache on to help us pick the most recent cached data
+      - name: Fetch date for cache key
+        id: get-date
+        run: |
+          echo "::set-output name=week::$(/bin/date -u "+%U")"
+          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+          echo "::set-output name=hour::$(/bin/date -u "+%H")"
+          echo "::set-output name=minute::$(/bin/date -u "+%M")"
+        shell: bash
+      # Attempt to fetch the DerivedData from cache, by preferring one from earlier this minute, then one earlier
+      # this hour, then one earlier today, finally one earlier this week, and at last, any time.
+      - uses: actions/cache@v2
+        name: DerivedData cache
+        with:
+          path: .deriveddata-cache
+          key: deriveddata-${{ steps.get-date.outputs.week }}-${{ steps.get-date.outputs.date }}-${{ steps.get-date.outputs.hour }}-${{ steps.get-date.outputs.minute }}
+          restore-keys: |
+            deriveddata-${{ steps.get-date.outputs.week }}-${{ steps.get-date.outputs.date }}-${{ steps.get-date.outputs.hour }}
+            deriveddata-${{ steps.get-date.outputs.week }}-${{ steps.get-date.outputs.date }}
+            deriveddata-${{ steps.get-date.outputs.week }}
+            deriveddata
+      # Manually extract the derived data using tar so we can preserve permissions & extended file flags, which xcode
+      # relies on
+      - name: Extract DerivedData from cache
+        run: if [ -f .deriveddata-cache/cache.tar ]; then tar xvPpf .deriveddata-cache/cache.tar; else echo "No cache file"; fi
+      # Set the "modified time" of every file in the repository to be the time it was most recently modified in git -- this means that xcode
+      # can reliably use the `mtime` to see which files have changed. By default it's set to the time you check out.
+      - name: Update file mtimes
+        run: |
+          set +e
+          git submodule foreach 'rev=HEAD; for f in $(git ls-tree -r -t --full-name --name-only "$rev") ; do     touch -t $(git log --pretty=format:%cd --date=format:%Y%m%d%H%M.%S -1 "$rev" -- "$f") "$f"; done'
+          rev=HEAD; for f in $(git ls-tree -r -t --full-name --name-only "$rev") ; do     touch -t $(git log --pretty=format:%cd --date=format:%Y%m%d%H%M.%S -1 "$rev" -- "$f") "$f"; done
+
       # Configure ruby according to our .ruby-version
       - name: Setup ruby & Bundler
         uses: ruby/setup-ruby@v1
@@ -49,3 +83,6 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: cd ios && bundle exec fastlane beta "build_name:${{ github.ref_name }}"
+      # Package up the derived data for the caching action, including permissions and fine grained timestamps.
+      - name: Package DerivedData for cache
+        run: mkdir -p .deriveddata-cache && tar cfPp .deriveddata-cache/cache.tar --format posix localDerivedData
