@@ -29,7 +29,7 @@ platform :ios do
   lane :beta do |options|
     setup_ci if ENV['CI']
 
-    is_example_repo = ENV['CI'] && ENV['GITHUB_REPOSITORY'] == 'jorgenpt/flutter_github_example'
+    is_example_repo = ENV['GITHUB_REPOSITORY'] == 'jorgenpt/flutter_github_example'
 
     if !is_example_repo && APP_IDENTIFIER == 'no.tjer.HelloWorld' then
       UI.user_error! "You need to update your Fastfile to use your own `APP_IDENTIFIER`"
@@ -39,7 +39,7 @@ platform :ios do
     sync_code_signing(
       type: "appstore",
       app_identifier: APP_IDENTIFIER,
-      readonly: true
+      readonly: ENV.key?('CI')
     )
 
     if !is_example_repo then
