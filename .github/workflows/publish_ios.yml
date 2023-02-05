@@ -21,16 +21,16 @@ jobs:
 
     steps:
       - name: Check out from git
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       # This retrieves the current date & week in a format that we can use for keying our 
       # cache on to help us pick the most recent cached data
       - name: Fetch date for cache key
         id: get-date
         run: |
-          echo "::set-output name=week::$(/bin/date -u "+%U")"
-          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
-          echo "::set-output name=hour::$(/bin/date -u "+%H")"
-          echo "::set-output name=minute::$(/bin/date -u "+%M")"
+          echo "week=$(/bin/date -u "+%U")" >> $GITHUB_OUTPUT
+          echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
+          echo "hour=$(/bin/date -u "+%H")" >> $GITHUB_OUTPUT
+          echo "minute=$(/bin/date -u "+%M")" >> $GITHUB_OUTPUT
         shell: bash
       # Attempt to fetch the DerivedData from cache, by preferring one from earlier this minute, then one earlier
       # this hour, then one earlier today, finally one earlier this week, and at last, any time.
