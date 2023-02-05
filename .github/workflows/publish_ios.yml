@@ -95,9 +95,9 @@ jobs:
       # Package up the derived data for the caching action, including permissions and fine grained timestamps
       - name: Package DerivedData for cache
         run: |
-          mkdir -p .deriveddata-cache
+          mkdir -p .deriveddata-cache .pods-cache
           tar cfPp .deriveddata-cache/cache.tar --format posix build/ios/localDerivedData
-          if [ -d "build/ios/Pods.build" ]; then
+          if [[ -d "ios/Pods" ]]; then
             tar cfPp .pods-cache/cache.tar --format posix ios/Pods build/ios/Pods.build build/ios/pod_inputs.fingerprint
           else
             rm -f .pods-cache/cache.tar
