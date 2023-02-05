@@ -12,7 +12,7 @@ on:
 
 jobs:
   build_and_publish:
-    runs-on: macos-latest
+    runs-on: macos-12
 
     env:
       # Point the `ruby/setup-ruby` action at this Gemfile, so it
