@@ -47,8 +47,11 @@ jobs:
       - uses: actions/cache@v3
         name: Pods cache
         with:
-          path: .pods-cache
-          key: ios-pods-${{ hashFiles('ios/Podfile.lock') }}
+          path: |
+            .pods-cache
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods
+          key: ios-pods-${{ hashFiles('ios/Podfile.lock') }}-v2
           restore-keys: |
             ios-pods-
       # Manually extract the derived data using tar so we can preserve permissions & extended file flags, which xcode
