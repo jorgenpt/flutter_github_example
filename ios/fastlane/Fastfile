@@ -61,6 +61,7 @@ platform :ios do
     )
     $stdout << "::endgroup::\n"
 
+    $stdout << "::group::Configure project\n"
     # Figure out the build number (and optionally build name)
     new_build_number = (latest_testflight_build_number + 1)
     extra_config_args = []
@@ -69,7 +70,6 @@ platform :ios do
     end
 
     # Prep the xcodeproject from Flutter without building (`--config-only`)
-    $stdout << "::group::Configure project\n"
     sh(
       "flutter", "build", "ios", "--config-only",
       "--release", "--no-pub", "--no-codesign",
