@@ -44,10 +44,19 @@ jobs:
             deriveddata-${{ steps.get-date.outputs.week }}-${{ steps.get-date.outputs.date }}
             deriveddata-${{ steps.get-date.outputs.week }}
             deriveddata
+      - uses: actions/cache@v2
+        name: Pods cache
+        with:
+          path: .pods-cache
+          key: ios-pods-${{ hashFiles(ios/Podfile.lock) }}
+          restore-keys: |
+            ios-pods-
       # Manually extract the derived data using tar so we can preserve permissions & extended file flags, which xcode
       # relies on
-      - name: Extract DerivedData from cache
-        run: if [ -f .deriveddata-cache/cache.tar ]; then tar xvPpf .deriveddata-cache/cache.tar; else echo "No cache file"; fi
+      - name: Extract data from cache
+        run: |
+          if [ -f .deriveddata-cache/cache.tar ]; then tar xvPpf .deriveddata-cache/cache.tar; else echo "No deriveddata cache file"; fi
+          if [ -f .pods-cache/cache.tar ]; then tar xvPpf .pods-cache/cache.tar; else echo "No pods cache file"; fi
       # Set the "modified time" of every file in the repository to be the time it was most recently modified in git -- this means that xcode
       # can reliably use the `mtime` to see which files have changed. By default it's set to the time you check out.
       - name: Update file mtimes
@@ -85,4 +94,11 @@ jobs:
         run: cd ios && bundle exec fastlane beta "build_name:${{ github.ref_name }}"
       # Package up the derived data for the caching action, including permissions and fine grained timestamps
       - name: Package DerivedData for cache
-        run: mkdir -p .deriveddata-cache && tar cfPp .deriveddata-cache/cache.tar --format posix build/ios/localDerivedData
+        run: |
+          mkdir -p .deriveddata-cache
+          tar cfPp .deriveddata-cache/cache.tar --format posix build/ios/localDerivedData
+          if [ -d "build/ios/Pods.build" ]; then
+            tar cfPp .pods-cache/cache.tar --format posix ios/Pods build/ios/Pods.build build/ios/pod_inputs.fingerprint
+          else
+            rm -f .pods-cache/cache.tar
+          fi
