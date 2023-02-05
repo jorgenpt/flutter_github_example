@@ -34,7 +34,7 @@ jobs:
         shell: bash
       # Attempt to fetch the DerivedData from cache, by preferring one from earlier this minute, then one earlier
       # this hour, then one earlier today, finally one earlier this week, and at last, any time.
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         name: DerivedData cache
         with:
           path: .deriveddata-cache
@@ -44,7 +44,7 @@ jobs:
             deriveddata-${{ steps.get-date.outputs.week }}-${{ steps.get-date.outputs.date }}
             deriveddata-${{ steps.get-date.outputs.week }}
             deriveddata
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         name: Pods cache
         with:
           path: .pods-cache
