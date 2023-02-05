@@ -36,11 +36,13 @@ platform :ios do
     end
 
     # Download code signing certificates using `match` (and the `MATCH_PASSWORD` secret)
+    $stdout << "::group::Sync code signing\n"
     sync_code_signing(
       type: "appstore",
       app_identifier: APP_IDENTIFIER,
       readonly: ENV.key?('CI')
     )
+    $stdout << "::endgroup::\n"
 
     if !is_example_repo then
       if APPSTORECONNECT_ISSUER_ID == '69a6de83-feb7-47e3-e053-5b8c7c11a4d1' then
@@ -52,10 +54,12 @@ platform :ios do
     end
 
     # We expose the key data using `APP_STORE_CONNECT_API_KEY_KEY` secret on GH
+    $stdout << "::group::Load App Store Connect API key\n"
     app_store_connect_api_key(
       key_id: APPSTORECONNECT_KEY_ID,
       issuer_id: APPSTORECONNECT_ISSUER_ID
     )
+    $stdout << "::endgroup::\n"
 
     # Figure out the build number (and optionally build name)
     new_build_number = (latest_testflight_build_number + 1)
@@ -65,14 +69,17 @@ platform :ios do
     end
 
     # Prep the xcodeproject from Flutter without building (`--config-only`)
+    $stdout << "::group::Configure project\n"
     sh(
       "flutter", "build", "ios", "--config-only",
       "--release", "--no-pub", "--no-codesign",
       "--build-number", new_build_number.to_s,
       *extra_config_args
     )
+    $stdout << "::endgroup::\n"
   
     # Build & sign using Runner.xcworkspace
+    $stdout << "::group::Build app\n"
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
@@ -80,11 +87,14 @@ platform :ios do
       xcargs: "-IgnoreFileSystemDeviceInodeChanges=YES",
       derived_data_path: "../build/ios/localDerivedData",
     )
+    $stdout << "::endgroup::\n"
 
+    $stdout << "::group::Upload to TestFlight\n"
     upload_to_testflight(
       # This takes a long time, so don't waste GH runner minutes (but it means manually needing to
       # set the build live for external testers).
       skip_waiting_for_build_processing: true,
     )
+    $stdout << "::endgroup::\n"
   end
 end
