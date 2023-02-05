@@ -99,7 +99,7 @@ jobs:
           tar cfPp .deriveddata-cache/cache.tar --format posix build/ios/localDerivedData
           if [[ -d "ios/Pods" ]]; then
             find build/ios
-            tar cfPp .pods-cache/cache.tar --format posix ios/Pods
+            tar cfPp .pods-cache/cache.tar --format posix ios/Pods build/ios/pod_inputs.fingerprint
           else
             rm -f .pods-cache/cache.tar
           fi
