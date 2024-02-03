@@ -78,7 +78,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           cache: true
-          flutter-version: 3.7.1
+          flutter-version: 3.19.6
       # Start an ssh-agent that will provide the SSH key from the
       # SSH_PRIVATE_KEY secret to `fastlane match`
       - name: Setup SSH key
