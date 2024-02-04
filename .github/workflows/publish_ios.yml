@@ -77,15 +77,15 @@ jobs:
           restore-keys: xcode-cache-deriveddata-${{ github.workflow }}-
           delete-used-deriveddata-cache: true
           restore-mtime-targets: |
-            ${{ env.PUB_BASE }}/.pub-cache/**/*.m
-            ${{ env.PUB_BASE }}/.pub-cache/**/*.mm
-            ${{ env.PUB_BASE }}/.pub-cache/**/*.h
-            ${{ env.PUB_BASE }}/.pub-cache/**/*.c
-            ${{ env.PUB_BASE }}/.pub-cache/**/*.cc
-            ${{ env.PUB_BASE }}/.pub-cache/**/*.cpp
-            ${{ env.PUB_BASE }}/.pub-cache/**/*.hpp
-            ${{ env.PUB_BASE }}/.pub-cache/**/*.hxx
-            ${{ env.PUB_BASE }}/.pub-cache/**/*.plist
+            ${{ env.PUB_BASE }}/**/*.m
+            ${{ env.PUB_BASE }}/**/*.mm
+            ${{ env.PUB_BASE }}/**/*.h
+            ${{ env.PUB_BASE }}/**/*.c
+            ${{ env.PUB_BASE }}/**/*.cc
+            ${{ env.PUB_BASE }}/**/*.cpp
+            ${{ env.PUB_BASE }}/**/*.hpp
+            ${{ env.PUB_BASE }}/**/*.hxx
+            ${{ env.PUB_BASE }}/**/*.plist
           verbose: true
 
       # Start an ssh-agent that will provide the SSH key from the
