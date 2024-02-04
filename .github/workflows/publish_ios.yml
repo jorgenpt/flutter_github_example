@@ -76,7 +76,9 @@ jobs:
 
       ## Build project
       - name: Download dependencies
-        run: flutter pub get --offline --enforce-lockfile || flutter pub get --enforce-lockfile
+        run: |
+          flutter pub get --offline --enforce-lockfile || flutter pub get --enforce-lockfile
+          cd ios && bundle exec pod install --deployment
       - name: Build & Publish to TestFlight with Fastlane
         env:
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
