@@ -70,22 +70,10 @@ jobs:
           cd ios && bundle exec pod install --deployment
       # Attempt to fetch the Xcode build info from cache
       - uses: irgaly/xcode-cache@v1
-        env:
-          PUB_BASE: ${{ steps.setup-flutter.outputs.CACHE-PATH  }}/.pub-cache
         with:
           key: xcode-cache-deriveddata-${{ github.workflow }}-${{ github.sha }}
           restore-keys: xcode-cache-deriveddata-${{ github.workflow }}-
           delete-used-deriveddata-cache: true
-          restore-mtime-targets: |
-            ${{ env.PUB_BASE }}/**/*.m
-            ${{ env.PUB_BASE }}/**/*.mm
-            ${{ env.PUB_BASE }}/**/*.h
-            ${{ env.PUB_BASE }}/**/*.c
-            ${{ env.PUB_BASE }}/**/*.cc
-            ${{ env.PUB_BASE }}/**/*.cpp
-            ${{ env.PUB_BASE }}/**/*.hpp
-            ${{ env.PUB_BASE }}/**/*.hxx
-            ${{ env.PUB_BASE }}/**/*.plist
           verbose: true
 
       # Start an ssh-agent that will provide the SSH key from the
