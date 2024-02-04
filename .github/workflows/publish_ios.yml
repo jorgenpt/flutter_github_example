@@ -95,6 +95,5 @@ jobs:
       # Package up the Cocoapods cache for the caching action, including permissions and fine grained timestamps
       - name: Package Cocoapods for cache
         run: |
-          mkdir -p .pods-cache "$CP_HOME_RELATIVE" ios/Pods
-          find build/ios
-          tar cfPp .pods-cache/cache.tar --format posix "$CP_HOME_RELATIVE" ios/Pods build/ios/pod_inputs.fingerprint
+          mkdir -p .pods-cache "$CP_HOME_RELATIVE" ios/Pods build/ios/Pods.build
+          tar cfPp .pods-cache/cache.tar --format posix "$CP_HOME_RELATIVE" ios/Pods build/ios/Pods.build build/ios/pod_inputs.fingerprint
