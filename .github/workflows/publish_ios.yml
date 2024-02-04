@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       ## Caching of outputs & dependencies
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         name: Pods cache
         with:
           path: |
