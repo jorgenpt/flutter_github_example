@@ -19,6 +19,9 @@ jobs:
       # Point the `ruby/setup-ruby` action at this Gemfile, so it
       # caches dependencies for us.
       BUNDLE_GEMFILE: ${{ github.workspace }}/ios/Gemfile
+      # Point all Cocoapods operations to a custom subdirectory
+      CP_HOME_RELATIVE: build/cocoapods
+      CP_HOME_DIR: ${{ github.workspace }}/build/cocoapods
 
     steps:
       - name: Check out from git
@@ -30,8 +33,6 @@ jobs:
         with:
           path: |
             .pods-cache
-            ~/Library/Caches/CocoaPods
-            ~/.cocoapods
           key: ios-pods-${{ hashFiles('ios/Podfile.lock') }}-v2
           restore-keys: |
             ios-pods-
@@ -86,10 +87,6 @@ jobs:
       # Package up the Cocoapods cache for the caching action, including permissions and fine grained timestamps
       - name: Package Cocoapods for cache
         run: |
-          mkdir -p .pods-cache
-          if [[ -d "ios/Pods" ]]; then
-            find build/ios
-            tar cfPp .pods-cache/cache.tar --format posix ios/Pods build/ios/pod_inputs.fingerprint
-          else
-            rm -f .pods-cache/cache.tar
-          fi
+          mkdir -p .pods-cache "$CP_HOME_RELATIVE" ios/Pods
+          find build/ios
+          tar cfPp .pods-cache/cache.tar --format posix "$CP_HOME_RELATIVE" ios/Pods build/ios/pod_inputs.fingerprint
