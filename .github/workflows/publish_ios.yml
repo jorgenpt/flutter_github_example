@@ -45,14 +45,6 @@ jobs:
       - name: Extract data from cache
         run: |
           if [ -f .pods-cache/cache.tar ]; then tar xvPpf .pods-cache/cache.tar; else echo "No pods cache file"; fi
-      # Set the "modified time" of every file in the repository to be the time it was most recently modified in git -- this means that xcode
-      # can reliably use the `mtime` to see which files have changed. By default it's set to the time you check out.
-      - name: Update file mtimes
-        run: |
-          set +e
-          git submodule foreach 'rev=HEAD; for f in $(git ls-tree -r -t --full-name --name-only "$rev") ; do     touch -t $(git log --pretty=format:%cd --date=format:%Y%m%d%H%M.%S -1 "$rev" -- "$f") "$f"; done'
-          rev=HEAD; for f in $(git ls-tree -r -t --full-name --name-only "$rev") ; do     touch -t $(git log --pretty=format:%cd --date=format:%Y%m%d%H%M.%S -1 "$rev" -- "$f") "$f"; done
-
       # Configure ruby according to our .ruby-version
       - name: Setup ruby & Bundler
         uses: ruby/setup-ruby@v1
