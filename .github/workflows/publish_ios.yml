@@ -13,7 +13,8 @@ on:
 jobs:
   build_and_publish:
     runs-on: macos-14 # Current beta runner (M1), should be faster
-
+    permissions:
+      actions: write
     env:
       # Point the `ruby/setup-ruby` action at this Gemfile, so it
       # caches dependencies for us.
@@ -22,29 +23,14 @@ jobs:
     steps:
       - name: Check out from git
         uses: actions/checkout@v4
-      # This retrieves the current date & week in a format that we can use for keying our
-      # cache on to help us pick the most recent cached data
-      - name: Fetch date for cache key
-        id: get-date
-        run: |
-          echo "week=$(/bin/date -u "+%U")" >> $GITHUB_OUTPUT
-          echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
-          echo "hour=$(/bin/date -u "+%H")" >> $GITHUB_OUTPUT
-          echo "minute=$(/bin/date -u "+%M")" >> $GITHUB_OUTPUT
-        shell: bash
-      # Attempt to fetch the DerivedData from cache, by preferring one from earlier this minute, then one earlier
-      # this hour, then one earlier today, finally one earlier this week, and at last, any time.
-      - uses: actions/cache@v4
-        name: DerivedData cache
+      # Attempt to fetch the Xcode build info from cache
+      - uses: irgaly/xcode-cache@v1
         with:
-          path: .deriveddata-cache
-          key: deriveddata-${{ steps.get-date.outputs.week }}-${{ steps.get-date.outputs.date }}-${{ steps.get-date.outputs.hour }}-${{ steps.get-date.outputs.minute }}
-          restore-keys: |
-            deriveddata-${{ steps.get-date.outputs.week }}-${{ steps.get-date.outputs.date }}-${{ steps.get-date.outputs.hour }}
-            deriveddata-${{ steps.get-date.outputs.week }}-${{ steps.get-date.outputs.date }}
-            deriveddata-${{ steps.get-date.outputs.week }}
-            deriveddata
-      - uses: actions/cache@v4
+          key: xcode-cache-deriveddata-${{ github.workflow }}-${{ github.sha }}
+          restore-keys: xcode-cache-deriveddata-${{ github.workflow }}-
+          deriveddata-directory: build/ios/localDerivedData
+          delete-used-deriveddata-cache: true
+      - uses: actions/cache@v3
         name: Pods cache
         with:
           path: |
@@ -58,7 +44,6 @@ jobs:
       # relies on
       - name: Extract data from cache
         run: |
-          if [ -f .deriveddata-cache/cache.tar ]; then tar xvPpf .deriveddata-cache/cache.tar; else echo "No deriveddata cache file"; fi
           if [ -f .pods-cache/cache.tar ]; then tar xvPpf .pods-cache/cache.tar; else echo "No pods cache file"; fi
       # Set the "modified time" of every file in the repository to be the time it was most recently modified in git -- this means that xcode
       # can reliably use the `mtime` to see which files have changed. By default it's set to the time you check out.
@@ -98,8 +83,7 @@ jobs:
       # Package up the derived data for the caching action, including permissions and fine grained timestamps
       - name: Package DerivedData for cache
         run: |
-          mkdir -p .deriveddata-cache .pods-cache
-          tar cfPp .deriveddata-cache/cache.tar --format posix build/ios/localDerivedData
+          mkdir -p .pods-cache
           if [[ -d "ios/Pods" ]]; then
             find build/ios
             tar cfPp .pods-cache/cache.tar --format posix ios/Pods build/ios/pod_inputs.fingerprint
