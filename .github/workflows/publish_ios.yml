@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Check out from git
         uses: actions/checkout@v4
+
+      ## Caching of outputs & dependencies
       - uses: actions/cache@v3
         name: Pods cache
         with:
@@ -33,7 +35,7 @@ jobs:
           key: ios-pods-${{ hashFiles('ios/Podfile.lock') }}-v2
           restore-keys: |
             ios-pods-
-      # Manually extract the derived data using tar so we can preserve permissions & extended file flags, which xcode
+      # Manually extract the derived data using tar so we can preserve permissions & extended file flags, which Xcode
       # relies on
       - name: Extract data from cache
         run: |
@@ -43,8 +45,9 @@ jobs:
         with:
           key: xcode-cache-deriveddata-${{ github.workflow }}-${{ github.sha }}
           restore-keys: xcode-cache-deriveddata-${{ github.workflow }}-
-          deriveddata-directory: build/ios/localDerivedData
           delete-used-deriveddata-cache: true
+
+      ## Set up tools
       # Configure ruby according to our .ruby-version
       - name: Setup ruby & Bundler
         uses: ruby/setup-ruby@v1
@@ -57,8 +60,9 @@ jobs:
           cache: true
           flutter-version: 3.16.9
       - name: Configure flutter
-        run: |
-          flutter config --no-cli-animations --disable-analytics
+        run: flutter config --no-cli-animations --disable-analytics
+      - name: Configure xcbuild
+        run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
       # Start an ssh-agent that will provide the SSH key from the
       # SSH_PRIVATE_KEY secret to `fastlane match`
       - name: Setup SSH key
@@ -67,16 +71,20 @@ jobs:
         run: |
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
+
+      ## Build project
       - name: Download dependencies
-        run: flutter pub get
+        run: flutter pub get --offline --enforce-lockfile || flutter pub get --enforce-lockfile
       - name: Build & Publish to TestFlight with Fastlane
         env:
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: cd ios && bundle exec fastlane beta "build_name:${{ github.ref_name }}"
-      # Package up the derived data for the caching action, including permissions and fine grained timestamps
-      - name: Package DerivedData for cache
+
+      ## Prepare cache data
+      # Package up the Cocoapods cache for the caching action, including permissions and fine grained timestamps
+      - name: Package Cocoapods for cache
         run: |
           mkdir -p .pods-cache
           if [[ -d "ios/Pods" ]]; then

@@ -84,8 +84,6 @@ platform :ios do
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
       output_directory: "../build/ios/archive",
-      xcargs: "-IgnoreFileSystemDeviceInodeChanges=YES",
-      derived_data_path: "../build/ios/localDerivedData",
     )
     $stdout << "::endgroup::\n"
 
