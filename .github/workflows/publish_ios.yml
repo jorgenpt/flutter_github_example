@@ -27,6 +27,23 @@ jobs:
       - name: Check out from git
         uses: actions/checkout@v4
 
+      ## Set up tools
+      # Configure ruby according to our .ruby-version
+      - name: Setup ruby & Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      # Set up flutter (feel free to adjust the version below)
+      - name: Setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          cache: true
+          flutter-version: 3.16.9
+      - name: Configure flutter & xcbuild
+        run: |
+          flutter config --no-cli-animations --disable-analytics
+          defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
+
       ## Caching of outputs & dependencies
       - uses: actions/cache@v4
         name: Pods cache
@@ -46,6 +63,10 @@ jobs:
         run: |
           set +e
           rev=HEAD; for f in ios/Podfile ios/Podfile.lock; do touch -t $(git log --pretty=format:%cd --date=format:%Y%m%d%H%M.%S -1 "$rev" -- "$f") "$f"; done
+      - name: Download dependencies
+        run: |
+          flutter pub get --offline --enforce-lockfile || flutter pub get --enforce-lockfile
+          cd ios && bundle exec pod install --deployment
       # Attempt to fetch the Xcode build info from cache
       - uses: irgaly/xcode-cache@v1
         with:
@@ -54,22 +75,6 @@ jobs:
           delete-used-deriveddata-cache: true
           verbose: true
 
-      ## Set up tools
-      # Configure ruby according to our .ruby-version
-      - name: Setup ruby & Bundler
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-      # Set up flutter (feel free to adjust the version below)
-      - name: Setup flutter
-        uses: subosito/flutter-action@v2
-        with:
-          cache: true
-          flutter-version: 3.16.9
-      - name: Configure flutter
-        run: flutter config --no-cli-animations --disable-analytics
-      - name: Configure xcbuild
-        run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
       # Start an ssh-agent that will provide the SSH key from the
       # SSH_PRIVATE_KEY secret to `fastlane match`
       - name: Setup SSH key
@@ -80,10 +85,6 @@ jobs:
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
 
       ## Build project
-      - name: Download dependencies
-        run: |
-          flutter pub get --offline --enforce-lockfile || flutter pub get --enforce-lockfile
-          cd ios && bundle exec pod install --deployment
       - name: Build & Publish to TestFlight with Fastlane
         env:
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
