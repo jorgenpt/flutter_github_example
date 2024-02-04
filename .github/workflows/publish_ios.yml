@@ -23,13 +23,6 @@ jobs:
     steps:
       - name: Check out from git
         uses: actions/checkout@v4
-      # Attempt to fetch the Xcode build info from cache
-      - uses: irgaly/xcode-cache@v1
-        with:
-          key: xcode-cache-deriveddata-${{ github.workflow }}-${{ github.sha }}
-          restore-keys: xcode-cache-deriveddata-${{ github.workflow }}-
-          deriveddata-directory: build/ios/localDerivedData
-          delete-used-deriveddata-cache: true
       - uses: actions/cache@v3
         name: Pods cache
         with:
@@ -45,6 +38,13 @@ jobs:
       - name: Extract data from cache
         run: |
           if [ -f .pods-cache/cache.tar ]; then tar xvPpf .pods-cache/cache.tar; else echo "No pods cache file"; fi
+      # Attempt to fetch the Xcode build info from cache
+      - uses: irgaly/xcode-cache@v1
+        with:
+          key: xcode-cache-deriveddata-${{ github.workflow }}-${{ github.sha }}
+          restore-keys: xcode-cache-deriveddata-${{ github.workflow }}-
+          deriveddata-directory: build/ios/localDerivedData
+          delete-used-deriveddata-cache: true
       # Configure ruby according to our .ruby-version
       - name: Setup ruby & Bundler
         uses: ruby/setup-ruby@v1
