@@ -56,6 +56,9 @@ jobs:
         with:
           cache: true
           flutter-version: 3.16.9
+      - name: Configure flutter
+        run: |
+          flutter config --no-cli-animations --disable-analytics
       # Start an ssh-agent that will provide the SSH key from the
       # SSH_PRIVATE_KEY secret to `fastlane match`
       - name: Setup SSH key
