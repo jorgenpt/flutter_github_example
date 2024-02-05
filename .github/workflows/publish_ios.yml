@@ -94,14 +94,14 @@ jobs:
           ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
 
       ## Build project
-      - run: find $HOME -exec stat -f "%N %Fm" {} \; > prebuild.txt
+      - run: find $HOME -type f -exec stat -f "%N %Fm" {} \; > prebuild.txt
       - name: Build & Publish to TestFlight with Fastlane
         env:
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: cd ios && bundle exec fastlane beta "build_name:${{ github.ref_name }}"
-      - run: find $HOME -exec stat -f "%N %Fm" {} \; > postbuild.txt
+      - run: find $HOME -type f -exec stat -f "%N %Fm" {} \; > postbuild.txt
       - uses: actions/upload-artifact@v4
         with:
           name: build-manifest-${{ github.run_number }}
