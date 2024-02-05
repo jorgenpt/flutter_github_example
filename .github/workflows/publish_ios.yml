@@ -47,13 +47,21 @@ jobs:
 
       ## Caching of outputs & dependencies
       - uses: actions/cache@v4
-        name: Pods cache
+        name: flutter build cache
         with:
           path: |
             .pods-cache
           key: ios-pods-${{ hashFiles('ios/Podfile.lock') }}-v2
           restore-keys: |
             ios-pods-
+      - uses: actions/cache@v4
+        name: Pods cache
+        with:
+          path: |
+            .dart_tool/flutter_build
+          key: dart_tool-build-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            dart_tool-build-
       # Manually extract the derived data using tar so we can preserve permissions & extended file flags, which Xcode
       # relies on
       - name: Extract data from cache
